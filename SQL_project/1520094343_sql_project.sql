@@ -95,12 +95,13 @@ Include in your output the name of the court, and the name of the member
 formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
-SELECT Facilities.name,
+SELECT Facilities.name AS facility_name,
        CONCAT(Members.firstname, ' ',  Members.surname) AS member_name
 FROM `Bookings`
 JOIN Facilities ON Facilities.facid = Bookings.facid 
 JOIN `Members` ON Members.memid = Bookings.memid
-WHERE Facilities.name = "Tennis Court 1" OR Facilities.name = "Tennis Court 2"
+WHERE Facilities.facid in (0, 1)
+GROUP BY member_name
 ORDER BY member_name
 
 
@@ -115,11 +116,9 @@ Order by descending cost, and do not use any subqueries. */
 
 
 SELECT Facilities.name,
-       CASE WHEN (Bookings.memid = 0) AND (Facilities.guestcost*Bookings.slots > 30.0) THEN Facilities.guestcost
-            WHEN (Bookings.memid != 0) AND (Facilities.membercost*Bookings.slots > 30.0) THEN Facilities.membercost
+       CASE WHEN (Bookings.memid = 0) AND (Facilities.guestcost*Bookings.slots > 30.0) THEN Facilities.guestcost * Bookings.slots
+            WHEN (Bookings.memid != 0) AND (Facilities.membercost*Bookings.slots > 30.0) THEN Facilities.membercost * Bookings.slots
             END AS cost,
-       Bookings.starttime,
-       Bookings.slots,
        CONCAT(Members.firstname, ' ',  Members.surname) AS member_name
 FROM `Bookings`
 LEFT JOIN Facilities ON Facilities.facid = Bookings.facid 
@@ -139,8 +138,8 @@ ORDER BY cost DESC
 SELECT sub.* 
   FROM (
     SELECT Facilities.name,
-           CASE WHEN (Bookings.memid = 0) AND (Facilities.guestcost*Bookings.slots > 30.0) THEN Facilities.guestcost
-                WHEN (Bookings.memid != 0) AND (Facilities.membercost*Bookings.slots > 30.0) THEN Facilities.membercost
+           CASE WHEN (Bookings.memid = 0) AND (Facilities.guestcost*Bookings.slots > 30.0) THEN Facilities.guestcost * Bookings.slots
+                WHEN (Bookings.memid != 0) AND (Facilities.membercost*Bookings.slots > 30.0) THEN Facilities.membercost * Bookings.slots
                 END AS cost,
           CONCAT(Members.firstname, ' ',  Members.surname) AS member_name
    FROM `Bookings`
