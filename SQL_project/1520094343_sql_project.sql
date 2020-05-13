@@ -135,11 +135,12 @@ ORDER BY cost DESC
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
 
+
 SELECT sub.* 
   FROM (
     SELECT Facilities.name,
-           CASE WHEN (Bookings.memid = 0) AND (Facilities.guestcost*Bookings.slots > 30.0) THEN Facilities.guestcost * Bookings.slots
-                WHEN (Bookings.memid != 0) AND (Facilities.membercost*Bookings.slots > 30.0) THEN Facilities.membercost * Bookings.slots
+           CASE WHEN (Bookings.memid = 0) THEN Facilities.guestcost * Bookings.slots
+                WHEN (Bookings.memid != 0) THEN Facilities.membercost * Bookings.slots
                 END AS cost,
           CONCAT(Members.firstname, ' ',  Members.surname) AS member_name
    FROM `Bookings`
@@ -148,8 +149,10 @@ SELECT sub.*
   WHERE LEFT(Bookings.starttime, 10) = '2012-09-14'
       
 
-  ORDER BY cost DESC) sub
-WHERE sub.cost IS NOT NULL
+ORDER BY cost DESC) sub
+WHERE sub.cost > 30
+
+
 
 
 
